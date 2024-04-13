@@ -94,7 +94,6 @@ useEffect(()=>{
         </div>)}
       }) }
       <button onClick={()=>handleNext(currentPitanje)}>next</button>
-      <button onClick={()=>handlePrev(currentPitanje)}>prev</button>
 
     </div>
   );
