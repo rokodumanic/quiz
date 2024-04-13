@@ -1,5 +1,4 @@
 import './App.css';
-import Pitanje from './components/Pitanje';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import Odgovori from './components/Odgovori';
