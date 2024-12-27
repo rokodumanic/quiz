@@ -1,14 +1,21 @@
 import './App.css';
 import { useState, useEffect } from 'react';
+import Pitanje from './components/Pitanje';
 import axios from 'axios';
 import Odgovori from './components/Odgovori';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import {Button} from "react-bootstrap";
+import BrojacPitanja from './components/BrojacPitanja';
+import Kraj from './components/Kraj';
 
 
 
 function App() {
   const [currentPitanje, setCurrentPitanje] = useState(0);
   const [numPitanja, setNumPitanja] = useState(0);
-  const [pitanja, setPitanja] = useState([{
+  const [rezultat, setRezultat] = useState([]);
+  const [kraj, setKraj] = useState(false);
+  const [pitanja, setPitanja] = useState([/* {
     category:"",
     id: null,
     type: "",
@@ -16,10 +23,14 @@ function App() {
     question:"",
     correct_answer:"",
     incorrect_answers: []
-}]);
+} */]);
 
 useEffect(()=>{
-    const getPitanje = async () => {
+    
+    restart();
+  },[]);
+
+async function getPitanje(){
       let arr = [];
         
             await axios.get('https://opentdb.com/api.php?amount=5&type=multiple').then(
@@ -63,37 +74,67 @@ useEffect(()=>{
         })
             
     }
-    getPitanje();
-  },[]);
+
+  function addResult(prop){
+    setRezultat((prevRezultati) => [ ...prevRezultati, prop]);
+    if(rezultat.length === pitanja.length-1){
+      setKraj(true);
+    }
+  }
 
   function handleNext(props){
     setCurrentPitanje(props+1);
-    if(props === numPitanja){
+    console.log("handleNext pitanje", props+1, currentPitanje, numPitanja	);
+    if(props == numPitanja){
+      console.log("handleNext", props, numPitanja);
       return(<p>Presli ste</p>);
     }
   }
 
-  function handlePrev(props){
-    setCurrentPitanje(props-1);
-
+  function restart(){
+    setPitanja([]);
+    setCurrentPitanje(0);
+    setRezultat([]);
+    setKraj(false);
+      getPitanje();
   }
 
   return (
     <div className="App">
+    {kraj && <Kraj restart={restart} rezultat={rezultat}/> }
       {pitanja.length && pitanja.map((eachPitanje, i)=>{
         if (currentPitanje === i)
         {return(
+          <div className='quizContainer'>
           <div className="qaContainer">
-          <h3>Question:{i+1}/{pitanja.length}</h3>
-          <h2>{eachPitanje.question}</h2>  
+          <Pitanje 
+            pitanje={eachPitanje.question}
+            redniBr={i+1}
+          />
+  
           <Odgovori
               tocniOdg={eachPitanje.correct_answer}
               neTocniOdg={eachPitanje.incorrect_answers}
+              addResult={addResult}
           />
-        </div>)}
-      }) }
-      <button onClick={()=>handleNext(currentPitanje)}>next</button>
+          
 
+          
+
+        { rezultat.length===i+1 ? <Button onClick={()=>handleNext(currentPitanje)} disabled={currentPitanje === numPitanja - 1}>next</Button> : null}
+          </div>
+          <div>
+
+        <BrojacPitanja
+            redniBr={i+1}
+            ukupanBr={pitanja.length}
+            rez={rezultat}
+          />
+
+        </div>
+        </div>
+        )}
+      }) }
     </div>
   );
 }

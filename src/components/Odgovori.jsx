@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import {Button} from "react-bootstrap";
 
-const Odgovori = ({ tocniOdg, neTocniOdg }) => {
+const Odgovori = ({ tocniOdg, neTocniOdg, addResult }) => {
     const [arrButton, setArrButton] = useState([]);
     const [tocanIndex, setTocanIndex] = useState(-1);
     const [clicked, setClicked] = useState(-1);
@@ -21,9 +22,18 @@ const Odgovori = ({ tocniOdg, neTocniOdg }) => {
         return shuffledArr;
     }
 
-    const handleButtonClick = (index) => {
+    function handleButtonClick(index, isCorrect){
         setClicked(index);
+        if(isCorrect){
+            addResult(1);
+        } else addResult(0);
     };
+
+    function handleDisabledButton(){
+        if(clicked===-1){
+            return false;
+        }else {return true;}
+    }
 
     return (
         <>
@@ -33,17 +43,17 @@ const Odgovori = ({ tocniOdg, neTocniOdg }) => {
                     const isCorrect = i === tocanIndex;
 
                     return (
-                        <button
+                        <Button variant="light"
                             className='botunZaOdgovor'
                             key={i}
-                            onClick={() => handleButtonClick(i)}
+                            onClick={() => handleButtonClick(i, isCorrect)}
                             style={{
-                                backgroundColor: clicked === i ? (isCorrect ? 'green' : 'red') : 'white'
+                                backgroundColor: clicked!=-1 ? (isCorrect ? 'green' : clicked === i ? 'red' : 'white') : 'white'
+                                
+                                
                             }}
-                        >
-                            {odg}
-                        </button>
-                        
+                            disabled={handleDisabledButton()}
+                            >{odg}</Button>
                     );
                 })}
             </>
