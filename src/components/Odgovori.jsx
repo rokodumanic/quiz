@@ -7,7 +7,13 @@ const Odgovori = ({ tocniOdg, neTocniOdg, addResult }) => {
     const [clicked, setClicked] = useState(-1);
 
     useEffect(()=>{
-        const arr = [tocniOdg, ...neTocniOdg];
+        let arrOdg = [];
+        neTocniOdg.map((eachOdg, i)=>{
+            const odg = new DOMParser().parseFromString(eachOdg, 'text/html');
+            console.log(" AAAAAAAAAAAAA###",eachOdg, odg.documentElement.textContent);
+            arrOdg.push(odg.documentElement.textContent);
+        })
+        const arr = [tocniOdg, ...arrOdg];
         const shuffleArr = shuffle(arr);
         setArrButton(shuffleArr);
         setTocanIndex(shuffleArr.findIndex(element=>element===tocniOdg));

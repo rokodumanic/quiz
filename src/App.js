@@ -7,7 +7,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import {Button} from "react-bootstrap";
 import BrojacPitanja from './components/BrojacPitanja';
 import Kraj from './components/Kraj';
-
+import LoadScr from './components/LoadingScr';
 
 
 function App() {
@@ -26,7 +26,6 @@ function App() {
 } */]);
 
 useEffect(()=>{
-    
     restart();
   },[]);
 
@@ -40,16 +39,16 @@ async function getPitanje(){
                   
                   response.data.results.map((eachResponse, i)=>{
                     console.log("each Response", eachResponse);
-                    const fetchedQuestion = eachResponse;
-                    console.log("fetched question",fetchedQuestion);
+                    const quest = new DOMParser().parseFromString(eachResponse.question, 'text/html');
+                    const ans = new DOMParser().parseFromString(eachResponse.correct_answer, 'text/html');
                     arr.push({
-                      category: fetchedQuestion.category,
-                      id: fetchedQuestion.id,
-                      type: fetchedQuestion.type,
-                      difficulty: fetchedQuestion.difficulty,
-                      question: fetchedQuestion.question,
-                      correct_answer: fetchedQuestion.correct_answer,
-                      incorrect_answers: fetchedQuestion.incorrect_answers
+                      category: eachResponse.category,
+                      id: eachResponse.id,
+                      type: eachResponse.type,
+                      difficulty: eachResponse.difficulty,
+                      question: quest.documentElement.textContent,
+                      correct_answer: ans.documentElement.textContent,
+                      incorrect_answers: eachResponse.incorrect_answers
                   }) 
                   
                   })
@@ -61,7 +60,7 @@ async function getPitanje(){
               }
         }).catch((err)=>{
           console.log(err);
-             if (err.response && err.response.status === 429) {
+             if ((err.response && err.response.status === 429) && pitanja.length===0) {
                 const retryAfter = err.response.headers['retry-after'];
                 const delay = retryAfter ? parseInt(retryAfter, 10) * 1000 : 5000; // Default delay of 5 seconds
 
@@ -102,6 +101,7 @@ async function getPitanje(){
   return (
     <div className="App">
     {kraj && <Kraj restart={restart} rezultat={rezultat}/> }
+    {!pitanja.length && <LoadScr />}
       {pitanja.length && pitanja.map((eachPitanje, i)=>{
         if (currentPitanje === i)
         {return(
@@ -133,6 +133,7 @@ async function getPitanje(){
 
         </div>
         </div>
+        
         )}
       }) }
     </div>
